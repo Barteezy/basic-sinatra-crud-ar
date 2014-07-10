@@ -16,7 +16,10 @@ class App < Sinatra::Application
     if session[:user_id]
       current_user = @database_connection.sql("Select * FROM users where id = #{session[:user_id]}").first
       users = @database_connection.sql("SELECT username from users where id != #{session[:user_id]}")
-      erb :logged_in, locals: {:users => users, :current_user => current_user}
+      fish = @database_connection.sql("SELECT * from fish where user_id = '#{session[:user_id]}'")
+      p fish
+      p "--------------------------------------------------------------------------------------------------- "
+      erb :logged_in, locals: {:users => users, :current_user => current_user, :fishes => fish}
     else
       erb :root
     end
@@ -52,15 +55,33 @@ class App < Sinatra::Application
   end
 
   get "/sort" do
-    users = @database_connection.sql("SELECT username from users where id != #{session[:user_id]} by username")
+    if params[:ascending] == "on"
+      users = @database_connection.sql("SELECT username from users where id <> #{session[:user_id]} order by username")
+    else
+      params[:descending] == "on"
+      users = @database_connection.sql("SELECT username from users where id <> #{session[:user_id]} order by username DESC")
+    end
     erb :sort, locals: {:users => users}
   end
 
+  post "/" do
+    @database_connection.sql("Delete From users where username = '#{params[:username]}'")
+    redirect "/"
+  end
 
 
   get "/logout" do
     session.clear
     redirect '/'
+  end
+
+  get "/add_fish" do
+    erb :add_fish
+  end
+
+  post "/add_fish" do
+    @database_connection.sql("INSERT INTO fish (fish_name, wiki_page, pic, user_id) values ('#{params[:fish_name]}','#{params[:wiki_page]}','#{params[:pic]}','#{session[:user_id]}')")
+    redirect "/"
   end
 
   private

@@ -1,5 +1,11 @@
+<h1>Welcome, <%= current_user["username"] %></h1>
 
-<h1>Welcome, <%=current_user["username"]%></h1>
+<h3>Here your super cool fish, duder!</h3>
+<ul>
+  <% fishes.each do |fish| %>
+      <li> <%= fish["fish_name"] %> <%= fish["wiki_page"] %></li>
+  <% end %>
+</ul>
 
 
 <form method="get" action="/logout">
@@ -10,11 +16,23 @@
 <ul>
 
   <% users.each do |user| %>
-      <li><%= user["username"]%></li>
+      <li><%= user["username"] %></li>
   <% end %>
 
 </ul>
 
+
 <form method="get" action="/sort">
+  <input type="radio" name="ascending" value="on">Ascending<br>
+  <input type="radio" name="descending" value="on">Descending
   <button type="submit">Sort</button>
 </form>
+
+
+<form method="post" action'/delete'>
+<label for="delete">Delete</label>
+<input type="text" name="username" id="id">
+<input type="submit" value="Delete"/>
+</form>
+
+<a href="/add_fish">Add A SUPER BADASS FISH</a>
