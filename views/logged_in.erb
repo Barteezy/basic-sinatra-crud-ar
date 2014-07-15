@@ -1,0 +1,47 @@
+<h1>Welcome <%= current_user["username"] %></h1>
+
+<h2>Here are the fish you've uploaded</h2>
+<ul>
+  <% users_fish.each do |fish| %>
+  <li><%=fish["fish_name"]%><a href="<%=fish["wiki_link"]%>">Wiki-link</a></li>
+ <%end%>
+</ul>
+
+<h2>Here are the fish you've favorited</h2>
+<% fav_fish.each do |fish|%>
+    <li><%=fish["fish_name"]%><a href="<%=fish["wiki_link"]%>">Wiki-link</a></li>
+<%end%>
+
+<b>Other Users</b>
+<ul>
+  <% other_users.each do |users| %>
+      <li>  <a href="/<%= users["username"]%>"><%=users["username"]%></a> </li>
+  <% end %>
+</ul>
+
+<form method="get" action="/sort">
+  <input type="radio" name="ascending" value="on">Ascending<br>
+  <input type="radio" name="descending" value="on">Descending
+  <button type="submit">Sort</button>
+</form>
+
+<form method="post" action="/">
+  <ul>
+    <li>
+      <label for="/">Delete</label>
+      <input type="username" name="username"/>
+    </li>
+    <li>
+      <input type="submit" value="delete"/>
+    </li>
+  </ul>
+</form>
+
+<form action="/add_fish" method="get">
+  <input type="submit" value="Add A Fish"/>
+</form>
+
+
+<form action="/logout" method="post">
+  <input type="submit" value="logout"/>
+</form>

@@ -1,0 +1,11 @@
+<h1>Here are <%=user["username"]%>'s Fish</h1>
+<ul>
+  <% users_fish.each do |fish| %>
+  <li><%=fish["fish_name"]%><a href="<%=fish["wiki_link"]%>">Wiki-link</a>
+    <form method="post" action="/favorite/<%=fish["fish_name"]%>">
+      <input type="radio" name="favorite" value="on">
+      <button type="submit">favorite <%=fish["fish_name"]%></button>
+    </form>
+  </li>
+      <%end%>
+</ul>
