@@ -1,16 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
+
+  <meta charset="UTF-8">
+
   <title>Fish App</title>
+
+  <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.1/normalize.min.css">
+
+  <link href="style.css" rel="stylesheet" type="text/css"/>
+
 </head>
 <body>
 
-<% if flash[:notice] %>
-<%= flash[:notice] %>
-<%end%>
 
-<%=yield%>
+
+<!--  1/3 x 1/3 x 1/3 -->
+<section class="clearfix">
+  <article class="one_third">
+
+  </article>
+  <article class="one_third">
+    <div id="content">
+
+      <% if flash[:notice] %>
+          <%= flash[:notice] %>
+      <% end %>
+
+      <%= yield %>
+
+    </div>
+  </article>
+  <article class="one_third">
+  </article>
+</section><!-- END row -->
+
+
+
+</div
+
+
+
+
 </body>
 
 
 </html>
+
+
+
+
+
