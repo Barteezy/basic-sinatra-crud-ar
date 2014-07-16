@@ -41,4 +41,22 @@ class UsersTable
     @database_connection.sql(find_sql)
 
   end
+
+  def sort(id)
+    find_sql = <<-SQL
+      SELECT * FROM users
+      WHERE id != #{id} ORDER BY username
+    SQL
+
+    @database_connection.sql(find_sql)
+  end
+
+  def reverse_sort(id)
+    find_sql = <<-SQL
+      SELECT * FROM users
+      WHERE id != #{id} ORDER BY username DESC
+    SQL
+
+    @database_connection.sql(find_sql)
+  end
 end

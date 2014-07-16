@@ -90,10 +90,10 @@ class App < Sinatra::Application
   get "/sort" do
 
     if params[:ascending] == "on"
-      other_users = @database_connection.sql("select username from users where id != #{session[:id]} order by username")
+      other_users = @users_table.sort(session[:id])
       erb :sorted, locals: {other_users: other_users}
     elsif params[:descending] == "on"
-      other_users = @database_connection.sql("select username from users where id != #{session[:id]} order by username desc")
+      other_users = @users_table.reverse_sort(session[:id])
       erb :sorted, locals: {other_users: other_users}
     end
 
