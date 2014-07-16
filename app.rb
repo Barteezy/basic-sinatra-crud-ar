@@ -3,6 +3,7 @@ require "active_record"
 require "rack-flash"
 require "gschool_database_connection"
 require "./lib/users_table"
+require "./lib/fishes_table"
 
 class App < Sinatra::Application
   enable :sessions
@@ -11,15 +12,16 @@ class App < Sinatra::Application
   def initialize
     super
     @users_table = UsersTable.new(GschoolDatabaseConnection::DatabaseConnection.establish(ENV["RACK_ENV"]))
+    @fishes_table = FishesTable.new(GschoolDatabaseConnection::DatabaseConnection.establish(ENV["RACK_ENV"]))
   end
 
   get "/" do
     if session[:id]
       current_user = @users_table.find(session[:id])
       other_users = @users_table.other_users(session[:id])
-      # users_fish = @database_connection.sql("select * from fish where user_id = '#{session[:user_id]}'")
+      users_fish = @fishes_table.find_fish(#{session[:id]})
       # fav_fish = favorite_fish
-      erb :logged_in, locals: {:current_user => current_user, :other_users => other_users}
+      erb :logged_in, locals: {:current_user => current_user, :other_users => other_users, :users_fish => users_fish}
     else
       erb :index
     end
@@ -110,7 +112,7 @@ class App < Sinatra::Application
 
   post "/add_fish" do
     user_id = session[:id]
-    @database_connection.sql("insert into fish (fish_name, wiki_link, user_id) values('#{params[:fish_name]}','#{params[:wiki_link]}',#{user_id})")
+    @fishes_table.create(params[:fish_name], params[:wiki_link], user_id )
     redirect "/"
   end
 
@@ -139,11 +141,11 @@ class App < Sinatra::Application
     end
   end
 
-  def favorite_fish
-    fav_fish = @database_connection.sql("select * from favorite_fish where user_id = '#{session[:id]}'")
-    p fav_fish
-    @database_connection.sql("select * from fish where id = 3")
-  end
+  # def favorite_fish
+  #   fav_fish = @database_connection.sql("select * from favorite_fish where user_id = '#{session[:id]}'")
+  #   p fav_fish
+  #   @database_connection.sql("select * from fish where id = 3")
+  # end
 
 end
 

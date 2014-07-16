@@ -1,6 +1,6 @@
-class CreateFish < ActiveRecord::Migration
+class CreateFishes < ActiveRecord::Migration
   def up
-    create_table :fish do |t|
+    create_table :fishes do |t|
       t.string :fish_name
       t.string :wiki_link
       t.string :user_id
@@ -8,6 +8,6 @@ class CreateFish < ActiveRecord::Migration
   end
 
   def down
-    drop_table :fish
+    drop_table :fishes
   end
 end
