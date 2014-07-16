@@ -2,6 +2,7 @@ require "sinatra"
 require "active_record"
 require "rack-flash"
 require "gschool_database_connection"
+require "./lib/users_table"
 
 class App < Sinatra::Application
   enable :sessions
@@ -9,16 +10,16 @@ class App < Sinatra::Application
 
   def initialize
     super
-    @database_connection = GschoolDatabaseConnection::DatabaseConnection.establish(ENV["RACK_ENV"])
+    @users_table = UsersTable.new(GschoolDatabaseConnection::DatabaseConnection.establish(ENV["RACK_ENV"]))
   end
 
   get "/" do
-    if session[:user_id]
-      current_user = @database_connection.sql("select username from users where id = #{session[:user_id]}").first
-      other_users = @database_connection.sql("select username from users where id != #{session[:user_id]}")
-      users_fish = @database_connection.sql("select * from fish where user_id = '#{session[:user_id]}'")
-      fav_fish = favorite_fish
-      erb :logged_in, locals: {:current_user => current_user, :other_users => other_users, :users_fish => users_fish, :fav_fish => fav_fish}
+    if session[:id]
+      current_user = @users_table.find(session[:id])
+      other_users = @users_table.other_users(session[:id])
+      # users_fish = @database_connection.sql("select * from fish where user_id = '#{session[:user_id]}'")
+      # fav_fish = favorite_fish
+      erb :logged_in, locals: {:current_user => current_user, :other_users => other_users}
     else
       erb :index
     end
@@ -35,11 +36,15 @@ class App < Sinatra::Application
     elsif params[:password] == ""
       flash.now[:notice] = "password cannot be blank"
       erb :register
-    elsif @database_connection.sql("select * from users where username = '#{params[:username]}'") != []
+      # elsif @database_connection.sql("select * from users where username = '#{params[:username]}'") != []
+      #   flash.now[:notice] = "username already taken"
+    elsif @users_table.find_by(params[:username], params[:password]) !=nil
+
       flash.now[:notice] = "username already taken"
       erb :register
     else
-      @database_connection.sql("insert into users(username, password) values('#{params[:username]}','#{params[:password]}')")
+      # @database_connection.sql("insert into users(username, password) values('#{params[:username]}','#{params[:password]}')")
+      @users_table.create(params[:username], params[:password])
       redirect "/"
     end
   end
@@ -51,30 +56,44 @@ class App < Sinatra::Application
     elsif params[:password] == ""
       flash.now[:notice] = "password cannot be blank"
       erb :index
-    elsif @database_connection.sql("select * from users where username = '#{params[:username]}' and password = '#{params[:password]}'") == []
+      # elsif @database_connection.sql("select * from users where username = '#{params[:username]}' and password = '#{params[:password]}'") == []
+
+    elsif @users_table.find_by(params[:username], params[:password]) == nil
       flash.now[:notice] = "cannot find username and/or password"
       erb :index
-    else
-      id_array = @database_connection.sql("SELECT id FROM users WHERE username ='#{params[:username]}' and password = '#{params[:password]}'")
-      id_hash = id_array.first
-      id = id_hash["id"]
-      session[:user_id] = id
-      redirect '/'
     end
+
+    user = @users_table.find_by(params[:username], params[:password])
+    if user
+      session[:id] = user.fetch("id")
+      p session[:id]
+      p "..........................................................."
+      redirect "/"
+    else
+      flash.now[:notice] = "cannot find username and/or password"
+      erb :index
+
+    # id_array = @database_connection.sql("SELECT id FROM users WHERE username ='#{params[:username]}' and password = '#{params[:password]}'")
+    # id_hash = id_array.first
+    # id = id_hash["id"]
+    # session[:user_id] = id
+
+  end
   end
 
+
   post "/logout" do
-    session.delete(:user_id)
+    session.delete(:id)
     redirect "/"
   end
 
   get "/sort" do
 
     if params[:ascending] == "on"
-      other_users = @database_connection.sql("select username from users where id != #{session[:user_id]} order by username")
+      other_users = @database_connection.sql("select username from users where id != #{session[:id]} order by username")
       erb :sorted, locals: {other_users: other_users}
     elsif params[:descending] == "on"
-      other_users = @database_connection.sql("select username from users where id != #{session[:user_id]} order by username desc")
+      other_users = @database_connection.sql("select username from users where id != #{session[:id]} order by username desc")
       erb :sorted, locals: {other_users: other_users}
     end
 
@@ -90,7 +109,7 @@ class App < Sinatra::Application
   end
 
   post "/add_fish" do
-    user_id = session[:user_id]
+    user_id = session[:id]
     @database_connection.sql("insert into fish (fish_name, wiki_link, user_id) values('#{params[:fish_name]}','#{params[:wiki_link]}',#{user_id})")
     redirect "/"
   end
@@ -105,7 +124,7 @@ class App < Sinatra::Application
   post "/favorite/:fish" do
     fish = @database_connection.sql("select * from fish where fish_name = '#{params[:fish]}'").first
     if params[:favorite] == "on"
-      @database_connection.sql("insert into favorite_fish(user_id, fish_id) values('#{session[:user_id]}', '#{fish["id"]}')")
+      @database_connection.sql("insert into favorite_fish(user_id, fish_id) values('#{session[:id]}', '#{fish["id"]}')")
       redirect "/"
     end
     redirect "/"
@@ -115,15 +134,16 @@ class App < Sinatra::Application
   private
 
   def current_user
-    if session[:user_id]
-      @database_connection.sql("select id from users where id = #{session[:user_id]}")
+    if session[:id]
+      @database_connection.sql("select id from users where id = #{session[:id]}")
     end
   end
 
   def favorite_fish
-    fav_fish = @database_connection.sql("select * from favorite_fish where user_id = '#{session[:user_id]}'")
+    fav_fish = @database_connection.sql("select * from favorite_fish where user_id = '#{session[:id]}'")
     p fav_fish
     @database_connection.sql("select * from fish where id = 3")
   end
+
 end
 
