@@ -19,7 +19,7 @@ class App < Sinatra::Application
     if session[:id]
       current_user = @users_table.find(session[:id])
       other_users = @users_table.other_users(session[:id])
-      users_fish = @fishes_table.find_fish(#{session[:id]})
+      users_fish = @fishes_table.find_fish(session[:id])
       # fav_fish = favorite_fish
       erb :logged_in, locals: {:current_user => current_user, :other_users => other_users, :users_fish => users_fish}
     else
@@ -68,8 +68,6 @@ class App < Sinatra::Application
     user = @users_table.find_by(params[:username], params[:password])
     if user
       session[:id] = user.fetch("id")
-      p session[:id]
-      p "..........................................................."
       redirect "/"
     else
       flash.now[:notice] = "cannot find username and/or password"
@@ -102,7 +100,8 @@ class App < Sinatra::Application
   end
 
   post "/" do
-    @database_connection.sql("delete from users where username = '#{params[:username]}'")
+    # @database_connection.sql("delete from users where username = '#{params[:username]}'")
+    @users_table.delete(params[:username])
     redirect "/"
   end
 
@@ -117,29 +116,28 @@ class App < Sinatra::Application
   end
 
   get "/:name" do
-    username = params[:name]
-    user = @database_connection.sql("select * from users where username = '#{username}'").first
-    users_fish = @database_connection.sql("select * from fish where user_id = '#{user["id"]}'")
+    user = @users_table.find_by_name(params[:name])
+    users_fish = @fishes_table.find_fish(user["id"])
     erb :users_fish, locals: {user: user, users_fish: users_fish}
   end
 
-  post "/favorite/:fish" do
-    fish = @database_connection.sql("select * from fish where fish_name = '#{params[:fish]}'").first
-    if params[:favorite] == "on"
-      @database_connection.sql("insert into favorite_fish(user_id, fish_id) values('#{session[:id]}', '#{fish["id"]}')")
-      redirect "/"
-    end
-    redirect "/"
+  # post "/favorite/:fish" do
+  #   fish = @database_connection.sql("select * from fish where fish_name = '#{params[:fish]}'").first
+  #   if params[:favorite] == "on"
+  #     @database_connection.sql("insert into favorite_fish(user_id, fish_id) values('#{session[:id]}', '#{fish["id"]}')")
+  #     redirect "/"
+  #   end
+  #   redirect "/"
 
-  end
+  # end
 
   private
 
-  def current_user
-    if session[:id]
-      @database_connection.sql("select id from users where id = #{session[:id]}")
-    end
-  end
+  # def current_user
+  #   if session[:id]
+  #     @database_connection.sql("select id from users where id = #{session[:id]}")
+  #   end
+  # end
 
   # def favorite_fish
   #   fav_fish = @database_connection.sql("select * from favorite_fish where user_id = '#{session[:id]}'")

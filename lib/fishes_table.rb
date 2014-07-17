@@ -28,7 +28,16 @@ class FishesTable
   def find_fish(id)
     find_sql = <<-SQL
       SELECT * FROM fishes
-      WHERE user_id = #{id}
+      WHERE user_id = '#{id}'
+    SQL
+
+    @database_connection.sql(find_sql)
+  end
+
+  def find_fish_by_name(name)
+    find_sql = <<-SQL
+      SELECT * FROM fishes
+      WHERE user_id = '#{name}'
     SQL
 
     @database_connection.sql(find_sql)

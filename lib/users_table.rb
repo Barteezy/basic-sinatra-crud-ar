@@ -32,6 +32,15 @@ class UsersTable
     @database_connection.sql(find_by_sql).first
   end
 
+  def find_by_name(username)
+    find_by_sql = <<-SQL
+      SELECT * FROM users
+      WHERE username = '#{username}'
+    SQL
+
+    @database_connection.sql(find_by_sql).first
+  end
+
   def other_users(id)
     find_sql = <<-SQL
       SELECT * FROM users
@@ -56,7 +65,18 @@ class UsersTable
       SELECT * FROM users
       WHERE id != #{id} ORDER BY username DESC
     SQL
-
     @database_connection.sql(find_sql)
   end
+
+
+  def delete(user)
+    find_sql = <<-SQL
+    DELETE FROM users
+    WHERE username = '#{user}'
+    SQL
+    @database_connection.sql(find_sql)
+  end
+
 end
+
+
