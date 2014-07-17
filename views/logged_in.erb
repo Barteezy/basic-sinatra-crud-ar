@@ -25,8 +25,7 @@
       <tr>
         <td><a href="/<%= users["username"] %>"><%= users["username"] %></a></td>
         <td align="center">
-          <form id="table_form" method="post" action="/">
-
+          <form id="table_form" method="post" action="/delete/<%=users["username"]%>">
 
                 <input id="delete_button" type="submit" value="delete"/>
 

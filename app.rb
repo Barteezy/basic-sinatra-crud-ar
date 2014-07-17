@@ -100,9 +100,10 @@ class App < Sinatra::Application
 
   end
 
-  post "/" do
+  post "/delete/:name" do
     # @database_connection.sql("delete from users where username = '#{params[:username]}'")
-    @users_table.delete(params[:username])
+
+    @users_table.delete(params[:name])
     redirect "/"
   end
 
