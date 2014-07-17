@@ -5,14 +5,28 @@ feature "Fish App" do
     visit "/"
     click_on "Register"
 
-    expect(page).to have_content "Register For The Fish App"
+
+    expect(page).to have_content "Register For Fish.lyp"
 
     fill_in "username", :with => "bob"
     fill_in "password", :with => "bob"
 
     click_on "Register"
 
-    expect(page).to have_content "Login"
+    visit "/"
+
+    expect(page).to have_content "Or"
+
+    fill_in "username", :with => "bob"
+    fill_in "password", :with => "bob"
+
+    click_on "Login"
+
+
+    expect(page).to have_content "Welcome bob"
+
+    visit "/"
+
 
     fill_in "username", :with => "bob"
     fill_in "password", :with => "bob"
@@ -21,9 +35,7 @@ feature "Fish App" do
 
     expect(page).to have_content "Welcome bob"
 
-    click_on "logout"
-
-    expect(page).to have_content "Register"
+    expect(page).to have_content "Here are the fish you've uploaded"
 
 
   end

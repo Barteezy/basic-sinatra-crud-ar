@@ -47,6 +47,7 @@ class App < Sinatra::Application
     else
       # @database_connection.sql("insert into users(username, password) values('#{params[:username]}','#{params[:password]}')")
       @users_table.create(params[:username], params[:password])
+      flash[:success] = "Thank you for registering"
       redirect "/"
     end
   end
@@ -73,12 +74,12 @@ class App < Sinatra::Application
       flash.now[:notice] = "cannot find username and/or password"
       erb :index
 
-    # id_array = @database_connection.sql("SELECT id FROM users WHERE username ='#{params[:username]}' and password = '#{params[:password]}'")
-    # id_hash = id_array.first
-    # id = id_hash["id"]
-    # session[:user_id] = id
+      # id_array = @database_connection.sql("SELECT id FROM users WHERE username ='#{params[:username]}' and password = '#{params[:password]}'")
+      # id_hash = id_array.first
+      # id = id_hash["id"]
+      # session[:user_id] = id
 
-  end
+    end
   end
 
 
@@ -111,8 +112,13 @@ class App < Sinatra::Application
 
   post "/add_fish" do
     user_id = session[:id]
-    @fishes_table.create(params[:fish_name], params[:wiki_link], user_id )
-    redirect "/"
+    if params[:fish_name] == ""
+      flash.now[:error] = "Fish must have a name"
+      erb :add_fish
+    else
+      @fishes_table.create(params[:fish_name], params[:wiki_link], user_id)
+      redirect "/"
+    end
   end
 
   get "/:name" do

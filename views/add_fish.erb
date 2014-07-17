@@ -1,17 +1,24 @@
-<h1>Add a fish!</h1>
+<h1>Create a new fish!</h1>
 
 <form action="/add_fish" method="post">
-  <ul>
-    <li>
+  <fieldset id="box">
+    <legend>Information</legend>
+    <div>
+      <% if flash[:error] %>
+          <span style="color:red"><%= flash[:error] %></span>
+      <% end %>
+    </div>
+    <div>
       <label for="fish">Fish Name</label>
       <input type="text" name="fish_name"/>
-    </li>
-    <li>
+
+
       <label for="wiki_link">Wiki-link</label>
       <input type="text" name="wiki_link"/>
-    </li>
-    <li>
-      <input type="submit" value="add fish"/>
-    </li>
-  </ul>
+    </div>
+  </fieldset>
+
+  <input id="register_button" type="submit" value="Create"/>
+
+
 </form>

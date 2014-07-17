@@ -23,6 +23,11 @@
   <article class="one_third">
     <div id="content">
 
+      <% if flash[:success]%>
+          <span style="color:green"><%= flash[:success] %></span>
+      <% end %>
+
+
       <% if flash[:notice] %>
           <%= flash[:notice] %>
       <% end %>
